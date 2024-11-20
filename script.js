@@ -89,8 +89,7 @@ function finishDrawing(event) {
     const startTableId = startNearestTable.dataset.columnId;
     const endTableId = endNearestTable.dataset.columnId;
     className = `${startTableId} ${endTableId}`;
-    currentLine.classList.add(`${startTableId} ${endTableId}`); // Add your desired class name
-    console.log(`Line drawn between tables: ${startTableId} and ${endTableId}`);
+    currentLine.classList.add(`col_${startTableId}`, `col_${endTableId}`);
 
     // Reset drawing state
     isDrawing = false;
@@ -122,7 +121,6 @@ function createPoint(x, y) {
             const centerY = rect.top + rect.height / 2;
     
             const distance = Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2));
-            console.log('Distance to table:', distance);
     
             // Check if table is within the threshold
             if (distance < threshold) {
@@ -238,7 +236,6 @@ fetch('tables.json')
 
       // Drag and drop functionality for columns
       tableCard.addEventListener('dragstart', (e) => {
-        console.log('Drag started:', tableCard.textContent);
         
         e.dataTransfer.setData('column-id', e.target.dataset.columnId);
         e.dataTransfer.setData('table-id', e.target.dataset.tableId);
@@ -346,8 +343,10 @@ fetch('tables.json')
     
         // Close button functionality
         closeButton.addEventListener('click', () => {
-             gridTable.remove(); // Remove the grid table from the DOM
-             deleteTableAndLines(tableData);
+            gridTable.remove(); 
+            const lineClassNamGridTable = gridTable.dataset.columnId; 
+            const lines = document.querySelectorAll(`.col_${lineClassNamGridTable}`);
+            lines.forEach((line) => line.remove());
         });
     
         headerContainer.appendChild(closeButton);
@@ -453,7 +452,6 @@ fetch('tables.json')
             const columnHeader = e.target.closest('td');
 
             if (columnHeader) {
-                console.log(`Mouse is on column: ${columnHeader.textContent.trim()}`);
                 return; // Exit to prevent dragging behavior when clicking on a column header
             }
 
