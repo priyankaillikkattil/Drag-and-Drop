@@ -1,0 +1,38 @@
+{
+    "table 1": [
+      {
+        "id": "1",
+        "name": "imp",
+        "columns": [
+          {    "column_id": "1",     "name": "Employee_salary",         "columns": [{"column_id":"1","name":"Priyanka", "emp_id":5},{"column_id":"2","name":"Ram", "emp_id":6},{"column_id":"3","name":"Jose", "emp_id":9},{"column_id":"4","name":"Jose", "emp_id":9}]          },
+          {    "column_id": "2",     "name": "Employee",       "columns": [{"column_id":"1","name":"Information Technology", "code":"IT"},{"column_id":"2","name":"Human REsource", "code":"HR"},{"column_id":"3","name":"Onboarding", "code":"OB"}]          },
+          {    "column_id": "3",     "name": "patients",         "columns": [{"column_id":"1","name":"Manager", "scale":2000},{"column_id":"2","name":"Lead", "scale":16000},{"column_id":"3","name":"Freher", "scale":9000}]          }
+        ]
+      }
+    ],
+    "table 2": [
+      {
+        "id": "2",
+        "name": "Employee",
+        "columns": [
+          {    "column_id": "1",     "name": "Employees",         "columns": [{"column_id":"1","name":"Priyanka", "emp_id":5},               {"column_id":"2","name":"Ram", "emp_id":6},                {"column_id":"3","name":"Jose", "emp_id":9}]          },
+          {    "column_id": "2",     "name": "Departments",       "columns": [{"column_id":"1","name":"Information Technology", "code":"IT"},{"column_id":"2","name":"Human REsource", "code":"HR"},    {"column_id":"3","name":"Onboarding", "code":"OB"}]          },
+          {    "column_id": "3",     "name": "Team Head",         "columns": [{"column_id":"1","name":"Manager", "scale":2000},              {"column_id":"2","name":"Lead", "scale":16000},            {"column_id":"3","name":"Freher", "scale":9000}]          }
+        ]
+      }
+    ],
+    "table 3": [
+      {
+        "id": "3",
+        "name": "Test",
+        "columns": [
+          {    "column_id": "1",     "name": "Test_employees",         "columns": [{"column_id":"1","name":"Priyanka", "emp_id":5},{"name":"Ram", "emp_id":6},{"name":"Jose", "emp_id":9}]          },
+          {    "column_id": "2",     "name": "Test_departments",       "columns": [{"column_id":"1","name":"Information Technology", "code":"IT"},{"name":"Human REsource", "code":"HR"},{"name":"Onboarding", "code":"OB"}]          },
+          {    "column_id": "3",     "name": "Test_Head",             "columns": [{"column_id":"1","name":"Manager", "scale":2000},{"name":"Lead", "scale":16000},{"name":"Freher", "scale":9000}]          }
+        ]
+      }
+    ]
+
+ 
+  
+}
