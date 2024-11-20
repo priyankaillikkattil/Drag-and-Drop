@@ -154,7 +154,18 @@ td {
 .droppable-row {
     background-color: #fce4ec;
 }
-
+svg {
+    background: #fff;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  circle {
+    fill: transparent;
+    cursor: grab;
+  }
+  circle:active {
+    cursor: grabbing;
+  }
 
 
  
