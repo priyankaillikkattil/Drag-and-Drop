@@ -1,223 +1,103 @@
-const connectionLines = document.getElementById('connection-lines');
-const gridArea = document.getElementById('grid-area');
-const tableList = document.getElementById('table-list');
+const gridArea    = document.getElementById('grid-area');
+const tableList   = document.getElementById('table-list');
+const container   = document.getElementById("grid-area");
+const tables      = document.querySelectorAll(".draggable-table");
+let connections   = [];
+let draggedElement= null;
 
+    // Create a line between two cells
+    function createLine(startElement, endElement) {
+      const startRect     = startElement.getBoundingClientRect();
+      const endRect       = endElement.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
 
-let isDrawing = false;
-let currentLine = null;
-let startPoint = null;
-let selectedElement = null;
-connectionLines.addEventListener('mousedown', startDrawing);
-connectionLines.addEventListener('mousemove', drawLine);
-connectionLines.addEventListener('mouseup', finishDrawing);
+      const startX    = startRect.right - containerRect.left;
+      const startY    = startRect.top + startRect.height / 2 - containerRect.top;
+      const endX      = endRect.left - containerRect.left;
+      const endY      = endRect.top + endRect.height / 2 - containerRect.top;
+      const line      = document.createElement("div");
+      line.classList.add("line");
 
-function startDrawing(event) {
-    const startX = event.offsetX;
-    const startY = event.offsetY;
+      const length          = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+      const angle           = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
 
-    const nearestTable = findNearestTable(startX, startY);
-    if (!nearestTable) {
-        alert("You must start drawing near a table!");
-        return;
+      line.style.width      = `${length}px`;
+      line.style.left       = `${startX}px`;
+      line.style.top        = `${startY}px`;
+      line.style.transform  = `rotate(${angle}deg)`;
+      container.appendChild(line);
+      connections.push({ line, startElement, endElement });
     }
 
-    startPoint = createPoint(startX, startY);
-    connectionLines.appendChild(startPoint);
+    // Synchronize lines when scrolling
+    function syncLines() {
+      connections.forEach(({ line, startElement, endElement }) => {
+        const startRect     = startElement.getBoundingClientRect();
+        const endRect       = endElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
 
-    currentLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    currentLine.setAttribute('x1', startX);
-    currentLine.setAttribute('y1', startY);
-    currentLine.setAttribute('x2', startX);
-    currentLine.setAttribute('y2', startY);
-    currentLine.setAttribute('stroke', '#000');
-    currentLine.setAttribute('stroke-width', 2);
-    currentLine.setAttribute('marker-end', 'url(#arrowhead)');
-    connectionLines.appendChild(currentLine);
+        const startX        = startRect.right - containerRect.left;
+        const startY        = startRect.top + startRect.height / 2 - containerRect.top;
+        const endX          = endRect.left - containerRect.left;
+        const endY          = endRect.top + endRect.height / 2 - containerRect.top;
 
-    isDrawing = true;
-}
+        const length        = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+        const angle         = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
 
-function drawLine(event) {
-    if (!isDrawing || !currentLine) return;
-
-    const endX = event.offsetX;
-    const endY = event.offsetY;
-
-    currentLine.setAttribute('x2', endX);
-    currentLine.setAttribute('y2', endY);
-}
-
-function finishDrawing(event) {
-    if (!isDrawing) return;
-
-    const endX = event.offsetX;
-    const endY = event.offsetY;
-
-    // Find the nearest table to the end coordinates
-    const endNearestTable = findNearestTable(endX, endY);
-    if (!endNearestTable) {
-        alert("You must end drawing near a table!");
-        connectionLines.removeChild(currentLine); // Remove the line if drawing is invalid
-        currentLine = null;
-        isDrawing = false;
-        return;
-    }
-
-    // Find the nearest table to the start coordinates
-    const rect = startPoint.getBoundingClientRect();
-    const startX = rect.left + rect.width / 2;
-    const startY = rect.top + rect.height / 2;
-    const startNearestTable = findNearestTable(startX, startY);
-    if (!startNearestTable) {
-        alert("You must start drawing near a table!");
-        connectionLines.removeChild(currentLine);
-        currentLine = null;
-        isDrawing = false;
-        return;
-    }
-
-    // Create the end point
-    const endPoint = createPoint(endX, endY);
-    connectionLines.appendChild(endPoint);
-
-    // Set dataset for the line
-    currentLine.dataset.start = startPoint.id;
-    currentLine.dataset.end = endPoint.id;
-    currentLine.dataset.end = endPoint.id;
-    currentLine.dataset.end = endPoint.id;
-    // Assign table IDs as the line's class name
-    const startTableId = startNearestTable.dataset.columnId;
-    const endTableId = endNearestTable.dataset.columnId;
-    className = `${startTableId} ${endTableId}`;
-    currentLine.classList.add(`col_${startTableId}`, `col_${endTableId}`);
-
-    // Reset drawing state
-    isDrawing = false;
-    currentLine = null;
-}
-
-
-function createPoint(x, y) {
-    const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    point.setAttribute('cx', x);
-    point.setAttribute('cy', y);
-    point.setAttribute('r', 5);
-    point.setAttribute('id', `point-${Date.now()}`);
-    return point;
-}
-
-
-    function findNearestTable(x, y) {
-        const tables = document.querySelectorAll('.grid-table');
-        let nearestTable = null;
-        let minDistance = Infinity;
-        const threshold = 500; // Maximum distance to consider a table
-        let nearbyTables = 0; // Count of tables within threshold
-        let hasCloseTable = false; // Flag for any table within closeThreshold
-    
-        tables.forEach((table) => {
-            const rect = table.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-    
-            const distance = Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2));
-    
-            // Check if table is within the threshold
-            if (distance < threshold) {
-                nearbyTables++;
-                    hasCloseTable = true;
-                
-    
-                // Find the nearest table
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    nearestTable = table;
-                }
-            }
-        });
-    
-        
-    
-        // Ensure the conditions are met
-        if (nearbyTables >= 1 && hasCloseTable && tables.length>1) {
-            return nearestTable;
-        } else {
-            console.warn('Conditions not met: At least two tables within threshold and one close table required.');
-            return null;
-        }
-    }
-    
-
-
-    connectionLines.addEventListener('mousemove', (event) => {
-      if (!selectedElement) return;
-
-      const x = event.offsetX;
-      const y = event.offsetY;
-
-      selectedElement.setAttribute('cx', x);
-      selectedElement.setAttribute('cy', y);
-
-      // Update connected lines
-      Array.from(connectionLines.querySelectorAll('line')).forEach((line) => {
-        if (line.dataset.start === selectedElement.id) {
-          line.setAttribute('x1', x);
-          line.setAttribute('y1', y);
-        }
-        if (line.dataset.end === selectedElement.id) {
-          line.setAttribute('x2', x);
-          line.setAttribute('y2', y);
-        }
+        line.style.width     = `${length}px`;
+        line.style.left      = `${startX}px`;
+        line.style.top       = `${startY}px`;
+        line.style.transform = `rotate(${angle}deg)`;
       });
-    });
-
-    connectionLines.addEventListener('mouseup', () => (selectedElement = null));
-// Mouse move handler (global)
-function onMouseMove(event) { 
-    if (dragSource && currentLine) {
-        const mouseX = event.clientX + window.scrollX;
-        const mouseY = event.clientY + window.scrollY;
-
-        const isVertical = Math.abs(mouseY - dragSource.offsetTop) > Math.abs(mouseX - dragSource.offsetLeft);
-        updateArrowLine(currentLine, dragSource.offsetLeft, dragSource.offsetTop, mouseX, mouseY, isVertical);
     }
-}
 
+    // Delete table and its associated lines
+    function deleteTable(container) {
+      const table           = container.querySelector("table");
+      connections           = connections.filter(({ line, startElement, endElement }) => {
+          const isConnected = table.contains(startElement) || table.contains(endElement);
+          if (isConnected) line.remove();
+          return !isConnected;
+      });
+      container.remove();
+    }
+    // Add scroll event listeners to all table containers
+    document.querySelectorAll(".table-container").forEach(container => {
+            container.addEventListener("scroll", syncLines);
+    });
 // Fetch table data from the JSON file
-fetch('tables.json')
-  .then(response => response.json())
-  .then(data => {
-    const tables = [...data["table 1"], ...data["table 2"], ...data["table 3"]]; // Combine tables from all sources
+fetch('tables.json').then(response => response.json()).then(data => {
 
+    const tables = [...data["table 1"], ...data["table 2"], ...data["table 3"]]; // Combine tables from all sources
     // Populate table list with expandable cards
     tables.forEach(table => {
-      const tableCard = createTableCard(table);
-      tableList.appendChild(tableCard);
+          const tableCard = createTableCard(table);
+          tableList.appendChild(tableCard);
     });
 
     // Function to create table card with columns
     function createTableCard(table) {
-      const tableCard = document.createElement('div');
-      tableCard.className = 'card';
+      const tableCard         = document.createElement('div');
+      tableCard.className     = 'card';
       
-      const tableTitle = document.createElement('h3');
-      tableTitle.textContent = table.name;
+      const tableTitle        = document.createElement('h3');
+      tableTitle.textContent  = table.name;
       
-      const toggleIcon = document.createElement('span');
-      toggleIcon.textContent = ' + ';
-      toggleIcon.className = 'toggle-icon';
+      const toggleIcon        = document.createElement('span');
+      toggleIcon.textContent  = ' + ';
+      toggleIcon.className    = 'toggle-icon';
       tableTitle.appendChild(toggleIcon);
       
-      const columnsList = document.createElement('ul');
+      const columnsList       = document.createElement('ul');
       
       table.columns.forEach(column => {
-        const columnItem = document.createElement('li');
-        columnItem.textContent = `${column.name}`;
-        columnItem.draggable = true;
-        columnItem.dataset.columnId = column.column_id;
-        columnItem.dataset.tableId = table.id;
-        columnItem.classList.add('draggable-column');
-        columnsList.appendChild(columnItem);
+            const columnItem            = document.createElement('li');
+            columnItem.textContent      = `${column.name}`;
+            columnItem.draggable        = true;
+            columnItem.dataset.columnId = column.column_id;
+            columnItem.dataset.tableId  = table.id;
+            columnItem.classList.add('draggable-column');
+            columnsList.appendChild(columnItem);
       });
 
       tableCard.appendChild(tableTitle);
@@ -225,22 +105,20 @@ fetch('tables.json')
 
       // Toggle columns visibility when clicking the table title
       toggleIcon.addEventListener('click', () => {
-        if (columnsList.style.display === 'none') {
-          columnsList.style.display = 'block';
-          toggleIcon.textContent = ' - ';
-        } else {
-          columnsList.style.display = 'none';
-          toggleIcon.textContent = ' + ';
-        }
+            if (columnsList.style.display === 'none') {
+                  columnsList.style.display = 'block';
+                  toggleIcon.textContent    = ' - ';
+            } else {
+                  columnsList.style.display = 'none';
+                  toggleIcon.textContent    = ' + ';
+            }
       });
 
       // Drag and drop functionality for columns
       tableCard.addEventListener('dragstart', (e) => {
-        
-        e.dataTransfer.setData('column-id', e.target.dataset.columnId);
-        e.dataTransfer.setData('table-id', e.target.dataset.tableId);
+            e.dataTransfer.setData('column-id', e.target.dataset.columnId);
+            e.dataTransfer.setData('table-id', e.target.dataset.tableId);
       });
-
       return tableCard;
     }
 
@@ -249,9 +127,8 @@ fetch('tables.json')
 
     gridArea.addEventListener('drop', (e) => {
         e.preventDefault();
-        const columnId = e.dataTransfer.getData('column-id');
-        const tableId = e.dataTransfer.getData('table-id');
-        // Check if the table and column combination already exists in the grid
+        const columnId            = e.dataTransfer.getData('column-id');
+        const tableId             = e.dataTransfer.getData('table-id');
         const existingGridElement = gridArea.querySelector(
           `[data-table-id="${tableId}"][data-column-id="${columnId}"]`
         );
@@ -340,15 +217,11 @@ fetch('tables.json')
             closeButton.style.color      = '#333';
             closeButton.style.background = 'transparent';
         });
-    
+
         // Close button functionality
         closeButton.addEventListener('click', () => {
-            gridTable.remove(); 
-            const lineClassNamGridTable = gridTable.dataset.columnId; 
-            const lines = document.querySelectorAll(`.col_${lineClassNamGridTable}`);
-            lines.forEach((line) => line.remove());
+              deleteTable(gridTable);
         });
-    
         headerContainer.appendChild(closeButton);
         gridTable.appendChild(headerContainer);
     
@@ -361,9 +234,7 @@ fetch('tables.json')
         
         // Check if columnData.details exists and create a table for it
         if (columnData.columns && Array.isArray(columnData.columns)) {
-            const detailsTableDiv           = document.createElement('div');
-            detailsTableDiv.className       = 'table-wrapper';
-            detailsTableDiv.style.height    = '140px';
+          
             const detailsTable              = document.createElement('table');
             detailsTable.style.width        = '100%';
             detailsTable.className          = "draggable-table";
@@ -387,19 +258,39 @@ fetch('tables.json')
             // Add data rows to the table
             columnData.columns.forEach((detail) => {
                 const dataRow = document.createElement('tr');
-                dataRow.draggable        = 'true';
+                // dataRow.draggable        = 'true';
                 dataRow.className        = 'draggable-row';
                 headers.forEach((header) => {
                     const td = document.createElement('td');
                     td.textContent      = detail[header];
                     td.style.border     = '1px solid #ddd';
-                    td.style.padding    = '8px';                   
+                    td.style.padding    = '8px';        
+                    td.draggable        = true;
+                    td.className        = 'draggable';   
+                    td.addEventListener("dragstart", event => {
+                          draggedElement                   = event.target;
+                          event.dataTransfer.effectAllowed = "move";
+                    });
+                    td.addEventListener("dragover", event => {
+                          event.preventDefault();
+                          event.dataTransfer.dropEffect = "move";
+                    });          
+                    td.addEventListener("drop", event => {
+                          event.preventDefault();
+                          if (draggedElement) {
+                                const targetRow = event.target.closest("tr");
+                                if (targetRow) {
+                                      targetRow.cells[0].innerText = draggedElement.innerText;
+                                      createLine(draggedElement, targetRow.cells[0]);
+                                      draggedElement = null;
+                                }
+                          }
+                    });
                     dataRow.appendChild(td);
                 });
                 detailsTable.appendChild(dataRow);
             });
-            detailsTableDiv.appendChild(detailsTable);
-            gridTable.appendChild(detailsTableDiv);
+            gridTable.appendChild(detailsTable);
         } else {
             const noDetailsMessage = document.createElement('p');
             noDetailsMessage.textContent = 'No details available for this column.';
