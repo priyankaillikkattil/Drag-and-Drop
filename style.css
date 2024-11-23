@@ -198,6 +198,20 @@ td.draggable {
   transform-origin: left center;
 }
 
+.line::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 10px; /* Width of the arrowhead */
+  height: 10px; /* Height of the arrowhead */
+  border-right: 2px solid black; /* Arrowhead color */
+  border-top: 2px solid black; /* Arrowhead color */
+  transform-origin: center;
+}
+
+
 .grid-table {
   background-color: #f9f9f9;
   transition: transform 0.2s;
