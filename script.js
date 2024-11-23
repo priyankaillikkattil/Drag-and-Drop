@@ -280,7 +280,7 @@ fetch('tables.json').then(response => response.json()).then(data => {
                           if (draggedElement) {
                                 const targetRow = event.target.closest("tr");
                                 if (targetRow) {
-                                      targetRow.cells[0].innerText = draggedElement.innerText;
+                                      // targetRow.cells[0].innerText = draggedElement.innerText;
                                       createLine(draggedElement, targetRow.cells[0]);
                                       draggedElement = null;
                                 }
