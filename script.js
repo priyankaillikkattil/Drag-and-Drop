@@ -50,13 +50,7 @@ let draggedElement= null;
         line.style.transform = `rotate(${angle}deg)`;
       });
     }
-    // Adjust line positions on scroll
-    window.addEventListener('scroll', syncLines);
 
-// Adjust line positions on resize
-window.addEventListener('resize', () => {
-    syncLines();
-});
     // Delete table and its associated lines
     function deleteTable(container) {
       const table           = container.querySelector("table");
@@ -375,8 +369,6 @@ fetch('tables.json').then(response => response.json()).then(data => {
         
             window.addEventListener('mousemove', drag);
             window.addEventListener('mouseup', stopDrag);
-            window.addEventListener('scroll', syncLines);
-
         });
         
     
