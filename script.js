@@ -50,7 +50,13 @@ let draggedElement= null;
         line.style.transform = `rotate(${angle}deg)`;
       });
     }
+    // Adjust line positions on scroll
+    window.addEventListener('scroll', syncLines);
 
+// Adjust line positions on resize
+window.addEventListener('resize', () => {
+    syncLines();
+});
     // Delete table and its associated lines
     function deleteTable(container) {
       const table           = container.querySelector("table");
@@ -61,10 +67,7 @@ let draggedElement= null;
       });
       container.remove();
     }
-    // Add scroll event listeners to all table containers
-    document.querySelectorAll(".table-container").forEach(container => {
-            container.addEventListener("scroll", syncLines);
-    });
+
 // Fetch table data from the JSON file
 fetch('tables.json').then(response => response.json()).then(data => {
 
@@ -174,7 +177,7 @@ fetch('tables.json').then(response => response.json()).then(data => {
         gridTable.style.backgroundColor     = '#fff';
         gridTable.style.height              = '300px'; 
         gridTable.style.overflowY           = 'auto';
-
+        gridTable.addEventListener("scroll", syncLines);
         // Create a header container for title and close button
         const headerContainer               = document.createElement('div');
         headerContainer.style.display       = 'flex';
@@ -372,6 +375,8 @@ fetch('tables.json').then(response => response.json()).then(data => {
         
             window.addEventListener('mousemove', drag);
             window.addEventListener('mouseup', stopDrag);
+            window.addEventListener('scroll', syncLines);
+
         });
         
     

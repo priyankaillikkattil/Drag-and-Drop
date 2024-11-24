@@ -79,7 +79,7 @@
     font-size: 1.5rem;
   }
   
-  .grid-table {
+ .grid-table {
     min-width: 150px;
     min-height: 100px;
     border: 1px solid #ccc;
@@ -87,8 +87,10 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 10px;
     background-color: #fff;
-    position: absolute;
-    overflow: hidden;
+    position: relative;
+    overflow: auto;
+    max-height: 300px;
+    margin-right: 20px;
   }
   
   .grid-table h3 {
@@ -212,7 +214,3 @@ td.draggable {
 }
 
 
-.grid-table {
-  background-color: #f9f9f9;
-  transition: transform 0.2s;
-}
